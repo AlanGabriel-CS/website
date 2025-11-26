@@ -6,11 +6,11 @@ const PersonalBentoSite = () => {
   const [time, setTime] = useState(new Date());
   const [stats, setStats] = useState({ commits: 0, projects: 0, awards: 0 });
   const [typedText, setTypedText] = useState('');
-  const [selectedImage, setSelectedImage] = useState('/profile.jpeg');
+  // Use PUBLIC_URL so the image works in dev and when served from a subpath
+  const selectedImage = (process.env.PUBLIC_URL || '') + '/profile.jpeg';
   const [hoveredDock, setHoveredDock] = useState(null);
   const [sparkles, setSparkles] = useState([]);
   const canvasRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   const fullText = "Engineering Student | AI/ML & Embedded Systems | Hardware Design";
   
@@ -89,14 +89,20 @@ const PersonalBentoSite = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => setSelectedImage(e.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
+  // If the page is loaded with a hash (e.g. /#about), scroll to that element
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+    const id = hash.startsWith('#') ? hash.slice(1) : hash;
+    // Delay slightly so React has time to render the element
+    const t = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+    return () => clearTimeout(t);
+  }, []);
+
+
 
   const awards = [
     { title: "Schulich Leader Nominee", org: "Schulich Foundation - 2025", icon: Award },
@@ -203,7 +209,7 @@ const PersonalBentoSite = () => {
     { icon: FolderOpen, label: 'Projects', action: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
     { icon: Trophy, label: 'Awards', action: () => document.getElementById('awards')?.scrollIntoView({ behavior: 'smooth' }) },
     { icon: Mail, label: 'Contact', action: () => window.location.href = 'mailto:alankgabriel2007@gmail.com' },
-    { icon: Github, label: 'GitHub', action: () => window.open('https://github.com/yourusername', '_blank') },
+  { icon: Github, label: 'GitHub', action: () => window.open('https://github.com/AlanGabriel-CS', '_blank') },
     { icon: Linkedin, label: 'LinkedIn', action: () => window.open('https://linkedin.com/in/alan-gabriel-ce', '_blank') }
   ];
 
@@ -259,7 +265,7 @@ const PersonalBentoSite = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div
-            className="relative overflow-hidden rounded-3xl p-6 transition-all duration-500 group cursor-pointer"
+            className="relative overflow-hidden rounded-3xl p-6 transition-all duration-500 group"
             style={{
               background: hoveredCard === 'photo' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.8)',
               backdropFilter: 'blur(20px)',
@@ -268,7 +274,6 @@ const PersonalBentoSite = () => {
             }}
             onMouseEnter={() => setHoveredCard('photo')}
             onMouseLeave={() => setHoveredCard(null)}
-            onClick={() => fileInputRef.current?.click()}
           >
             {hoveredCard === 'photo' && (
               <div className="absolute inset-0 opacity-30">
@@ -280,29 +285,21 @@ const PersonalBentoSite = () => {
                 />
               </div>
             )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
             <div className="flex flex-col items-center justify-center h-full">
                 <img 
                   src={selectedImage} 
-                alt="Alan Gabriel" 
-                  className="w-32 h-32 rounded-full object-cover border-4 border-blue-800/50 shadow-2xl mb-4"
-                onError={(e) => {
-                  // Fallback to initials if image doesn't load
-                  e.target.style.display = 'none';
-                  const fallback = e.target.nextElementSibling;
-                  if (fallback) fallback.style.display = 'flex';
-                }}
-              />
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-800 via-slate-800 to-blue-900 flex items-center justify-center text-5xl font-bold text-white shadow-2xl border-4 border-white/10 mb-4 hidden">
+                  alt="Alan Gabriel" 
+                  className="w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-blue-800/50 shadow-2xl mb-4"
+                  onError={(e) => {
+                    // Fallback to initials if image doesn't load
+                    e.target.style.display = 'none';
+                    const fallback = e.target.nextElementSibling;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+                <div className="w-40 h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-br from-blue-800 via-slate-800 to-blue-900 flex items-center justify-center text-5xl font-bold text-white shadow-2xl border-4 border-white/10 mb-4 hidden">
                   AG
                 </div>
-              <p className="text-gray-400 text-sm text-center">Click to change photo</p>
             </div>
           </div>
 
@@ -347,7 +344,7 @@ const PersonalBentoSite = () => {
                 <a href="mailto:alankgabriel2007@gmail.com" className="p-3 rounded-full bg-blue-800/30 hover:bg-blue-800/40 transition-all duration-300 text-blue-400 hover:scale-110 border border-blue-800/40">
                   <Mail size={20} />
                 </a>
-                <a href="https://github.com/yourusername" className="p-3 rounded-full bg-blue-800/30 hover:bg-blue-800/40 transition-all duration-300 text-blue-400 hover:scale-110 border border-blue-800/40">
+                <a href="https://github.com/AlanGabriel-CS" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-blue-800/30 hover:bg-blue-800/40 transition-all duration-300 text-blue-400 hover:scale-110 border border-blue-800/40">
                   <Github size={20} />
                 </a>
                 <a href="https://linkedin.com/in/alan-gabriel-ce" className="p-3 rounded-full bg-blue-800/30 hover:bg-blue-800/40 transition-all duration-300 text-blue-400 hover:scale-110 border border-blue-800/40">
@@ -704,7 +701,10 @@ const PersonalBentoSite = () => {
             <p className="text-gray-300 mb-6 leading-relaxed">
               Interested in AI/ML hardware integration or seeking a dedicated engineering intern? I'd welcome the opportunity to discuss how we can collaborate on innovative projects.
             </p>
-            <button className="px-8 py-3 rounded-full bg-gradient-to-r from-blue-800 to-slate-800 text-white font-bold hover:shadow-2xl hover:shadow-blue-800/40 transition-all duration-300 hover:scale-105 border border-blue-800/50">
+            <button
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-blue-800 to-slate-800 text-white font-bold hover:shadow-2xl hover:shadow-blue-800/40 transition-all duration-300 hover:scale-105 border border-blue-800/50"
+              onClick={() => window.location.href = 'mailto:alankgabriel2007@gmail.com'}
+            >
               Get in Touch
             </button>
           </div>
